@@ -17,19 +17,24 @@
 <body>
 
 <header>
-    <div class="logo" onclick="window.location.href='index.html'">
+    <div class="logo" id="logoBtn" onclick="window.location.href='index.html'">
         <i class="fa-solid fa-fire"></i> YusufTube
     </div>
 
     <div class="search-bar">
         <input type="text" id="searchInput" placeholder="Search videos...">
-        <button><i class="fa-solid fa-magnifying-glass"></i></button>
-        <button id="voiceBtn"><i class="fa-solid fa-microphone"></i></button>
+        <button id="searchBtn">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+        <button id="voiceBtn">
+            <i class="fa-solid fa-microphone"></i>
+        </button>
     </div>
 
     <div class="user-actions">
-        <i class="fa-regular fa-bell"></i>
-		<div class="user-icon" onclick="window.location.href='Htmls/Register.html'">?</div>
+        <i class="fa-regular fa-bell" id="notificationBtn"></i>
+        <div class="user-icon" id="userBtn"
+             onclick="window.location.href='Htmls/Register.html'">?</div>
     </div>
 </header>
 
@@ -38,6 +43,6 @@
     <div class="video-grid" id="videoGrid"></div>
 </div>
 
-<script src="JavaScript/indexScript.js"></script>
+<script type="module" src="JavaScript/indexScript.js"></script>
 </body>
 </html>
