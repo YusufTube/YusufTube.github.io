@@ -1,14 +1,8 @@
-document.addEventListener("DOMContentLoaded", function () {
+const togglePassword = document.getElementById("togglePassword");
+const password = document.getElementById("password");
 
-    const togglePassword = document.getElementById("togglePassword");
-    const passwordInput = document.getElementById("passwordInput");
-
-    togglePassword.addEventListener("click", function () {
-        const type = passwordInput.type === "password" ? "text" : "password";
-        passwordInput.type = type;
-
-        this.classList.toggle("fa-eye");
-        this.classList.toggle("fa-eye-slash");
-    });
-
+togglePassword.addEventListener("click", function () {
+    password.type = password.type === "password" ? "text" : "password";
+    this.classList.toggle("fa-eye");
+    this.classList.toggle("fa-eye-slash");
 });
