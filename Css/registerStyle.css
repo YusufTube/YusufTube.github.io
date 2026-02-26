@@ -82,14 +82,14 @@ body::before {
     font-size: 1.8rem;
 }
 
-/* INPUTS */
+/* INPUT GROUP */
 .input-group {
     position: relative;
     margin-bottom: 18px;
 }
 
-/* Default icon (left side) */
-.input-group i {
+/* LEFT ICON ONLY */
+.input-group .left-icon {
     position: absolute;
     left: 14px;
     top: 50%;
@@ -97,10 +97,10 @@ body::before {
     color: rgba(255,255,255,0.6);
 }
 
-/* Input field */
+/* INPUT FIELD */
 .input-group input {
     width: 100%;
-    padding: 12px 12px 12px 42px;
+    padding: 12px 42px 12px 42px; /* left + right space */
     border-radius: 12px;
     border: none;
     outline: none;
@@ -109,24 +109,15 @@ body::before {
     transition: 0.3s ease;
 }
 
-.input-group input:focus {
-    background: rgba(255,255,255,0.2);
-}
-
-.input-group input::placeholder {
-    color: rgba(255,255,255,0.6);
-}
-
-/* 👁 Eye icon on RIGHT */
+/* EYE ICON (RIGHT SIDE) */
 .password-group .toggle-password {
     position: absolute;
     right: 14px;
-    left: auto;
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
-    color: rgba(255,255,255,0.6);
-    transition: 0.3s ease;
+    color: white; /* force visible */
+    z-index: 10;
 }
 
 .password-group .toggle-password:hover {
@@ -157,3 +148,4 @@ button:hover {
     color: #FF8400;
     transform: scale(1.05);
 }
+
