@@ -6,7 +6,15 @@
 <title>YusufTube</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- External CSS -->
 <link rel="stylesheet" href="../Css/registerStyle.css">
+
+<link rel="icon" type="image/png" sizes="32x32" href="../Images/YusufTube-Logo.png">
+<link rel="shortcut icon" href="../Images/YusufTube-Logo.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../Images/YusufTube-Logo.png">
+<link rel="icon" type="image/png" sizes="192x192" href="../Images/YusufTube-Logo.png">
+
 </head>
 
 <body>
@@ -19,29 +27,30 @@
 
     <h2 class="register-title">
         <i class="fa-solid fa-user-plus"></i>
-        Register
+        <span>Register</span>
     </h2>
 
     <div class="input-group">
         <i class="fa-solid fa-user left-icon"></i>
-        <input type="text" id="usernameInput" placeholder="Username">
+        <input type="text" placeholder="Username">
     </div>
 
     <div class="input-group">
         <i class="fa-solid fa-envelope left-icon"></i>
-        <input type="email" id="emailInput" placeholder="Email">
+        <input type="email" placeholder="Email">
     </div>
 
-    <div class="input-group password-group">
+    <div class="input-group">
         <i class="fa-solid fa-lock left-icon"></i>
-        <input type="password" id="passwordInput" placeholder="Password">
+        <input type="password" id="password" placeholder="Password">
         <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
     </div>
 
-    <button id="createAccountBtn">Create Account</button>
+    <button>Create Account</button>
 
 </div>
 
 <script src="../Js/register.js"></script>
+
 </body>
 </html>
