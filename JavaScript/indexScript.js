@@ -1,66 +1,76 @@
-// =============================
+// ==========================
+// FIREBASE IMPORTS
+// ==========================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc,
+    increment
+} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+// ==========================
+// FIREBASE CONFIG
+// ==========================
+const firebaseConfig = {
+    apiKey: "AIzaSyDAr2KgoAyhkxGUm5FmuexzLmm_XyiQQ0c",
+    authDomain: "yusuftube-63599.firebaseapp.com",
+    projectId: "yusuftube-63599",
+    storageBucket: "yusuftube-63599.firebasestorage.app",
+    messagingSenderId: "9588442108",
+    appId: "1:9588442108:web:065d421a1652d75a392879"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ==========================
 // ELEMENTS
-// =============================
+// ==========================
 const videoGrid = document.getElementById("videoGrid");
-const searchInput = document.getElementById("searchInput");
-const voiceBtn = document.getElementById("voiceBtn");
 
-// =============================
-// INDEXED DB SETUP
-// =============================
-let db;
-const request = indexedDB.open("YusufTubeDB", 1);
+// ==========================
+// GITHUB VIDEO BASE PATH
+// ==========================
 
-request.onupgradeneeded = (e) => {
-    db = e.target.result;
+// CHANGE THIS TO YOUR ACTUAL REPO RAW LINK
+const GITHUB_BASE =
+"https://yusuftube.github.io/Videos/";
 
-    if (!db.objectStoreNames.contains("videos")) {
-        const store = db.createObjectStore("videos", { keyPath: "id" });
-        store.createIndex("title", "title", { unique: false });
-    }
-};
+// ==========================
+// VIDEO LIST (STATIC)
+// ==========================
+const videos = [
+    "video1/ronaldo drinking meme 1 hour.mp4",
+    "video2/diddy heil epstein.mp4",
+    "video3/metro man arm swing 1 hour.mp4",
+    "video4/Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster).mp4",
+    "video5/All Hallows Eve.mp4",
+    "video6/1-800 bbnos.mp4",
+    "video7/1 hour of Shreksophone.mp4",
+    "video8/f25 key 1 hour.mp4",
+    "video9/100 Gün Minecraft ama Her Gün FARKLI MOBA Dönüşüyorum... (part 1).mp4",
+    "video10/100 Gün Minecraft ama Her Gün FARKLI MOBA Dönüşüyorum... (part 2).mp4",
+    "video11/Minecraft'ı Bitiriyorum ama 4 Avcıya Karşı.mp4",
+    "video12/Minecraft Manhunt ama 2 NETHERITE TANK'a Karşı....mp4",
+    "video13/Minecraft Manhunt ama Çimene DOKUNAMIYORUZ....mp4",
+    "video14/Berkay Inan - Aptal Kedi (çok resmi lyric video).mp4"
+];
 
-request.onsuccess = (e) => {
-    db = e.target.result;
-    initVideos();
-};
-
-request.onerror = (e) => {
-    console.error("DB error:", e.target.errorCode);
-};
-
-// =============================
-// GET VIDEO STATS
-// =============================
-function getVideoStats(videoId, callback) {
-    if (!db) {
-        callback({ views: 0 });
-        return;
-    }
-
-    const tx = db.transaction(["videos"], "readonly");
-    const store = tx.objectStore("videos");
-    const req = store.get(videoId);
-
-    req.onsuccess = () => {
-        callback(req.result || { views: 0 });
-    };
-
-    req.onerror = () => {
-        callback({ views: 0 });
-    };
-}
-
-// =============================
+// ==========================
 // CREATE VIDEO CARD
-// =============================
-function addHomeVideo(path) {
+// ==========================
+async function addHomeVideo(path) {
+
+    const fullPath = GITHUB_BASE + path;
     const fileName = path.split('/').pop();
     const cleanName = fileName
         .replace('.mp4','')
         .replace(/_/g,' ');
 
-    const key = "ys_" + fileName;
+    const videoId = fileName.replace(".mp4", "");
 
     const card = document.createElement("div");
     card.className = "video-card";
@@ -69,7 +79,7 @@ function addHomeVideo(path) {
     thumbnail.className = "thumbnail";
 
     const previewVideo = document.createElement("video");
-    previewVideo.src = path;
+    previewVideo.src = fullPath;
     previewVideo.muted = true;
     previewVideo.loop = true;
     previewVideo.playsInline = true;
@@ -85,13 +95,15 @@ function addHomeVideo(path) {
 
     const viewsDiv = document.createElement("div");
     viewsDiv.className = "video-views";
-    viewsDiv.innerText = "0 views";
+    viewsDiv.innerText = "Loading...";
 
     info.appendChild(titleDiv);
     info.appendChild(viewsDiv);
 
     card.appendChild(thumbnail);
     card.appendChild(info);
+
+    videoGrid.appendChild(card);
 
     // Hover preview
     card.addEventListener("mouseenter", () => {
@@ -103,94 +115,38 @@ function addHomeVideo(path) {
         previewVideo.currentTime = 0;
     });
 
-    // IMPORTANT FIX (Htmls folder)
-    card.onclick = () => {
+    // Click → increment views in Firebase
+    card.onclick = async () => {
+
+        const videoRef = doc(db, "videos", videoId);
+        const snap = await getDoc(videoRef);
+
+        if (snap.exists()) {
+            await updateDoc(videoRef, {
+                views: increment(1)
+            });
+        } else {
+            await setDoc(videoRef, {
+                views: 1
+            });
+        }
+
         window.location.href =
-            "Htmls/video.html?video=" + encodeURIComponent(path);
+            "Htmls/video.html?video=" + encodeURIComponent(fullPath);
     };
 
-    videoGrid.appendChild(card);
+    // Load views from Firebase
+    const videoRef = doc(db, "videos", videoId);
+    const snap = await getDoc(videoRef);
 
-    // Load real views
-    getVideoStats(key, (stats) => {
-        viewsDiv.innerText = (stats.views || 0) + " views";
-    });
+    if (snap.exists()) {
+        viewsDiv.innerText = snap.data().views + " views";
+    } else {
+        viewsDiv.innerText = "0 views";
+    }
 }
 
-// =============================
-// INITIALIZE VIDEOS
-// =============================
-function initVideos() {
-    const videos = [
-        "video1/ronaldo drinking meme 1 hour.mp4",
-        "video2/diddy heil epstein.mp4",
-        "video3/metro man arm swing 1 hour.mp4",
-        "video4/Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster).mp4",
-        "video5/All Hallows Eve.mp4",
-        "video6/1-800 bbnos.mp4",
-        "video7/1 hour of Shreksophone.mp4",
-        "video8/f25 key 1 hour.mp4",
-        "video9/100 Gün Minecraft ama Her Gün FARKLI MOBA Dönüşüyorum... (part 1).mp4",
-        "video10/100 Gün Minecraft ama Her Gün FARKLI MOBA Dönüşüyorum... (part 2).mp4",
-        "video11/Minecraft'ı Bitiriyorum ama 4 Avcıya Karşı.mp4",
-        "video12/Minecraft Manhunt ama 2 NETHERITE TANK'a Karşı....mp4",
-        "video13/Minecraft Manhunt ama Çimene DOKUNAMIYORUZ....mp4",
-        "video14/Berkay Inan - Aptal Kedi (çok resmi lyric video).mp4"
-    ];
-
-    videos.forEach(addHomeVideo);
-}
-
-// =============================
-// SEARCH FILTER
-// =============================
-function filterVideos(query) {
-    query = query.toLowerCase();
-
-    const cards = document.querySelectorAll(".video-card");
-
-    cards.forEach(card => {
-        const title = card
-            .querySelector(".video-title")
-            .innerText
-            .toLowerCase();
-
-        card.style.display = title.includes(query)
-            ? "block"
-            : "none";
-    });
-}
-
-searchInput.addEventListener("input", function() {
-    filterVideos(this.value);
-});
-
-// =============================
-// VOICE SEARCH FIXED
-// =============================
-const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
-
-if (SpeechRecognition && voiceBtn) {
-    const recognition = new SpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.continuous = false;
-
-    voiceBtn.addEventListener("click", () => {
-        recognition.start();
-        voiceBtn.classList.add("listening");
-    });
-
-    recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        searchInput.value = transcript;
-        filterVideos(transcript);
-    };
-
-    recognition.onend = () => {
-        voiceBtn.classList.remove("listening");
-    };
-
-} else if (voiceBtn) {
-    voiceBtn.style.display = "none";
-}
+// ==========================
+// INIT
+// ==========================
+videos.forEach(addHomeVideo);
