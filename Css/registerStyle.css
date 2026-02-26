@@ -5,7 +5,7 @@
     font-family: Arial, Helvetica, sans-serif;
 }
 
-/* ===== PAGE FADE IN ===== */
+/* ===== PAGE ===== */
 body {
     height: 100vh;
     display: flex;
@@ -20,17 +20,11 @@ body {
 }
 
 @keyframes pageFade {
-    from {
-        opacity: 0;
-        transform: scale(0.98);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
 }
 
-/* ===== Animated Background ===== */
+/* ===== Background ===== */
 body::before {
     content: "";
     position: fixed;
@@ -60,7 +54,6 @@ body::before {
     font-weight: bold;
     color: white;
     text-shadow: 0 0 20px rgba(255,132,0,0.8);
-    z-index: 10;
 }
 
 /* ===== Register Box ===== */
@@ -82,10 +75,7 @@ body::before {
 }
 
 .register-title {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
+    text-align: center;
     margin-bottom: 25px;
     font-size: 1.8rem;
 }
@@ -106,7 +96,7 @@ body::before {
 
 .input-group input {
     width: 100%;
-    padding: 12px 42px;
+    padding: 12px 45px 12px 42px;
     border-radius: 12px;
     border: none;
     outline: none;
@@ -131,6 +121,9 @@ body::before {
     transform: translateY(-50%);
     background: transparent;
     border: none;
+    padding: 0;
+    margin: 0;
+    width: auto;
     color: rgba(255,255,255,0.6);
     cursor: pointer;
     font-size: 1rem;
@@ -139,11 +132,10 @@ body::before {
 
 .eye-btn:hover {
     color: #FF8400;
-    transform: translateY(-50%) scale(1.1);
 }
 
-/* ===== Button ===== */
-button {
+/* ===== Main Button ===== */
+.register-box > button {
     width: 100%;
     padding: 12px;
     margin-top: 10px;
@@ -156,7 +148,7 @@ button {
     transition: 0.3s ease;
 }
 
-button:hover {
+.register-box > button:hover {
     background: white;
     color: #FF8400;
     transform: scale(1.05);
