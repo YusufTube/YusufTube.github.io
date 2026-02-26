@@ -88,6 +88,7 @@ body::before {
     margin-bottom: 18px;
 }
 
+/* Default icon (left side) */
 .input-group i {
     position: absolute;
     left: 14px;
@@ -96,6 +97,7 @@ body::before {
     color: rgba(255,255,255,0.6);
 }
 
+/* Input field */
 .input-group input {
     width: 100%;
     padding: 12px 12px 12px 42px;
@@ -115,10 +117,11 @@ body::before {
     color: rgba(255,255,255,0.6);
 }
 
-/* PASSWORD EYE */
+/* 👁 Eye icon on RIGHT */
 .password-group .toggle-password {
     position: absolute;
     right: 14px;
+    left: auto;
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
@@ -130,6 +133,7 @@ body::before {
     color: #FF8400;
 }
 
+/* Add spacing so text doesn't overlap eye */
 .password-group input {
     padding-right: 42px;
 }
