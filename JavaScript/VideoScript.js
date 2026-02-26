@@ -1,0 +1,331 @@
+// Elements
+const player = document.getElementById("videoPlayer");
+const glow = document.getElementById("glowPlayer");
+const videoList = document.getElementById("videoList");
+const title = document.getElementById("mainTitle");
+const viewDisplay = document.getElementById("viewCountDisplay");
+const likeBtn = document.getElementById("likeBtn");
+const dislikeBtn = document.getElementById("dislikeBtn");
+const likeCount = document.getElementById("likeCount");
+const dislikeCount = document.getElementById("dislikeCount");
+const saveBtn = document.getElementById("saveBtn");
+const searchInput = document.querySelector(".search-bar input");
+
+let activeKey = "";
+let dbReady = false;
+let db;
+
+// IndexedDB setup
+const request = indexedDB.open("YusufTubeDB", 1);
+
+request.onupgradeneeded = (e) => {
+    db = e.target.result;
+    const store = db.createObjectStore("videos", { keyPath: "id" });
+    store.createIndex("title", "title", { unique: false });
+};
+
+request.onsuccess = (e) => {
+    db = e.target.result;
+    dbReady = true;
+};
+
+request.onerror = (e) => console.error("DB error:", e.target.errorCode);
+
+function ensureDBReady(callback) {
+    if (dbReady) callback();
+    else request.onsuccess = (e) => {
+        db = e.target.result;
+        dbReady = true;
+        callback();
+    };
+}
+
+function saveVideoStats(videoId, stats) {
+    ensureDBReady(() => {
+        const tx = db.transaction(["videos"], "readwrite");
+        const store = tx.objectStore("videos");
+        store.put({ id: videoId, ...stats });
+    });
+}
+
+function getVideoStats(videoId, callback) {
+    ensureDBReady(() => {
+        const tx = db.transaction(["videos"], "readonly");
+        const store = tx.objectStore("videos");
+        const req = store.get(videoId);
+        req.onsuccess = () => callback(
+            req.result || { views: 0, likes: 0, dislikes: 0, action: null, viewed: false }
+        );
+    });
+}
+
+function updateLikeDislikeUI(stats) {
+    likeCount.innerText = stats.likes || 0;
+    dislikeCount.innerText = stats.dislikes || 0;
+    likeBtn.classList.toggle("active-btn", stats.action === "like");
+    dislikeBtn.classList.toggle("active-btn", stats.action === "dislike");
+}
+
+// Like button
+likeBtn.addEventListener("click", () => {
+    if (!activeKey) return;
+    getVideoStats(activeKey, (stats) => {
+        if (stats.action === "like") {
+            stats.likes--;
+            stats.action = null;
+        } else {
+            if (stats.action === "dislike") stats.dislikes--;
+            stats.likes++;
+            stats.action = "like";
+        }
+        saveVideoStats(activeKey, stats);
+        updateLikeDislikeUI(stats);
+    });
+});
+
+// Dislike button
+dislikeBtn.addEventListener("click", () => {
+    if (!activeKey) return;
+    getVideoStats(activeKey, (stats) => {
+        if (stats.action === "dislike") {
+            stats.dislikes--;
+            stats.action = null;
+        } else {
+            if (stats.action === "like") stats.likes--;
+            stats.dislikes++;
+            stats.action = "dislike";
+        }
+        saveVideoStats(activeKey, stats);
+        updateLikeDislikeUI(stats);
+    });
+});
+
+// Save Button
+saveBtn.addEventListener("click", () => {
+    if (!player.src) return;
+    const link = document.createElement("a");
+    link.href = player.src;
+    link.download = player.src.split("/").pop();
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+});
+
+// Load video function
+function loadVideo(path, key, sidebarViewEl) {
+    player.src = path;
+    glow.src = path;
+    title.innerText = path.split("/").pop().replace(".mp4", "");
+    activeKey = key;
+
+    getVideoStats(key, (stats) => {
+        updateLikeDislikeUI(stats);
+        viewDisplay.innerText = stats.views + " views";
+        if (sidebarViewEl) sidebarViewEl.innerText = stats.views + " views";
+    });
+}
+
+// Add video cards
+function addVideo(path) {
+    const file = path.split("/").pop();
+    const name = file.replace(".mp4", "").replace(/_/g, " ");
+    const key = "ys_" + file;
+
+    const card = document.createElement("div");
+    card.className = "preview-card";
+    card.dataset.path = path;
+
+    const thumb = document.createElement("div");
+    thumb.className = "preview-thumbnail";
+
+    const vid = document.createElement("video");
+    vid.src = path;
+    vid.muted = true;
+    vid.loop = true;
+
+    card.onmouseenter = () => vid.play();
+    card.onmouseleave = () => {
+        vid.pause();
+        vid.currentTime = 0;
+    };
+
+    const info = document.createElement("div");
+    const t = document.createElement("div");
+    t.className = "preview-title";
+    t.innerText = name;
+
+    const views = document.createElement("div");
+    views.className = "preview-views";
+    views.innerText = "0 views";
+
+    card.onclick = () => loadVideo(path, key, views);
+
+    thumb.appendChild(vid);
+    info.appendChild(t);
+    info.appendChild(views);
+    card.appendChild(thumb);
+    card.appendChild(info);
+    videoList.appendChild(card);
+}
+
+// Your video paths
+const videoPaths = [
+    "video1/ronaldo drinking meme 1 hour.mp4",
+    "video2/diddy heil epstein.mp4",
+    "video3/metro man arm swing 1 hour.mp4",
+    "video4/Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster).mp4",
+    "video5/All Hallows Eve.mp4",
+    "video6/1-800 bbnos.mp4",
+    "video7/1 hour of Shreksophone.mp4",
+    "video8/f25 key 1 hour.mp4",
+    "video9/100 Gün Minecraft ama Her Gün FARKLI MOBA Dönüşüyorum... (part 1).mp4",
+    "video10/100 Gün Minecraft ama Her Gün FARKLI MOBA Dönüşüyorum... (part 2).mp4",
+    "video11/Minecraft'ı Bitiriyorum ama 4 Avcıya Karşı.mp4",
+    "video12/Minecraft Manhunt ama 2 NETHERITE TANK'a Karşı....mp4",
+    "video13/Minecraft Manhunt ama Çimene DOKUNAMIYORUZ....mp4",
+    "video14/Berkay Inan - Aptal Kedi (çok resmi lyric video).mp4"
+];
+
+videoPaths.forEach(addVideo);
+
+// Auto-load logic
+const urlParams = new URLSearchParams(window.location.search);
+const videoParam = urlParams.get("video");
+
+if (videoParam) {
+    const decodedPath = decodeURIComponent(videoParam);
+    const file = decodedPath.split("/").pop();
+    const key = "ys_" + file;
+
+    const match = Array.from(videoList.children)
+        .find(card => card.dataset.path === decodedPath);
+
+    if (match) {
+        match.click();
+    } else {
+        loadVideo(decodedPath, key);
+    }
+} else if (videoList.firstChild) {
+    videoList.firstChild.click();
+}
+
+// Search functionality
+searchInput.addEventListener("input", () => {
+    const filter = searchInput.value.toLowerCase();
+    videoList.querySelectorAll(".preview-card").forEach(card => {
+        const title = card.querySelector(".preview-title").innerText.toLowerCase();
+        card.style.display = title.includes(filter) ? "flex" : "none";
+    });
+});
+
+// Count views only once per video & random next video
+player.addEventListener("ended", () => {
+    if (!activeKey) return;
+
+    getVideoStats(activeKey, (stats) => {
+        if (!stats.viewed) {
+            stats.views++;
+            stats.viewed = true;
+            saveVideoStats(activeKey, stats);
+            viewDisplay.innerText = stats.views + " views";
+
+            const sidebarEl = Array.from(videoList.children)
+                .find(c => c.dataset.path === player.src.split(location.origin + "/")[1])
+                ?.querySelector(".preview-views");
+
+            if (sidebarEl) sidebarEl.innerText = stats.views + " views";
+        }
+    });
+
+    // Play random video
+    const randomIndex = Math.floor(Math.random() * videoPaths.length);
+    const randomPath = videoPaths[randomIndex];
+    const randomFile = randomPath.split("/").pop();
+    const randomKey = "ys_" + randomFile;
+
+    loadVideo(randomPath, randomKey);
+    player.play();
+});
+
+// ===== VOICE SEARCH =====
+const voiceBtn = document.getElementById("voiceBtn");
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (SpeechRecognition && voiceBtn) {
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+
+    voiceBtn.addEventListener("click", () => {
+        recognition.start();
+        voiceBtn.classList.add("listening");
+    });
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        searchInput.value = transcript;
+
+        const filter = transcript.toLowerCase();
+        videoList.querySelectorAll(".preview-card").forEach(card => {
+            const title = card.querySelector(".preview-title").innerText.toLowerCase();
+            card.style.display = title.includes(filter) ? "flex" : "none";
+        });
+    };
+
+    recognition.onend = () => {
+        voiceBtn.classList.remove("listening");
+    };
+}
+
+// Glow effect
+const canvas = document.getElementById("colorSampler");
+const ctx = canvas.getContext("2d");
+
+function updateGlow() {
+    if (player.paused || player.ended) return requestAnimationFrame(updateGlow);
+
+    canvas.width = 40;
+    canvas.height = 40;
+
+    ctx.drawImage(player, 0, 0, canvas.width, canvas.height);
+    const frame = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+    let r = 0, g = 0, b = 0;
+    let count = 0;
+
+    for (let i = 0; i < frame.length; i += 4) {
+        r += frame[i];
+        g += frame[i + 1];
+        b += frame[i + 2];
+        count++;
+    }
+
+    r = Math.floor(r / count);
+    g = Math.floor(g / count);
+    b = Math.floor(b / count);
+
+    const glowColor = `rgba(${r}, ${g}, ${b}, 0.6)`;
+
+    document.querySelector(".video-wrapper").style.boxShadow =
+        `0 0 60px ${glowColor}, 0 0 120px ${glowColor}`;
+
+    requestAnimationFrame(updateGlow);
+}
+
+player.addEventListener("play", () => {
+    updateGlow();
+});
+
+// Sync glow
+player.addEventListener("play", () => { glow.play(); });
+player.addEventListener("pause", () => { glow.pause(); });
+player.addEventListener("seeking", () => { glow.currentTime = player.currentTime; });
+player.addEventListener("seeked", () => { glow.currentTime = player.currentTime; });
+player.addEventListener("ratechange", () => { glow.playbackRate = player.playbackRate; });
+
+// Safety resync
+setInterval(() => {
+    if (!player.paused && Math.abs(glow.currentTime - player.currentTime) > 0.2) {
+        glow.currentTime = player.currentTime;
+    }
+}, 1000);

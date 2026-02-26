@@ -1,0 +1,145 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ===== PAGE FADE IN ===== */
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: black;
+    overflow: hidden;
+    position: relative;
+
+    opacity: 0;
+    animation: pageFade 1.5s ease forwards;
+}
+
+@keyframes pageFade {
+    from {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ===== Animated Background ===== */
+body::before {
+    content: "";
+    position: fixed;
+    width: 200%;
+    height: 200%;
+    background:
+        radial-gradient(circle at 25% 30%, #FF8400 0%, transparent 45%),
+        radial-gradient(circle at 75% 70%, #FF8400 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, #000000 20%, #000000 60%);
+    animation: liquidMove 14s infinite alternate ease-in-out;
+    filter: blur(80px);
+    z-index: -1;
+}
+
+@keyframes liquidMove {
+    0% { transform: translate(-10%, -10%) rotate(0deg); }
+    100% { transform: translate(-15%, -5%) rotate(15deg); }
+}
+
+/* ===== Welcome Text ===== */
+.welcome-text {
+    position: fixed;
+    top: 35px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 0 20px rgba(255,132,0,0.8);
+    z-index: 10;
+}
+
+/* ===== Register Box ===== */
+.register-box {
+    width: 380px;
+    padding: 40px;
+    border-radius: 25px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 50px rgba(255, 132, 0, 0.4);
+    color: white;
+    animation: float 5s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.register-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+}
+
+/* ===== Inputs ===== */
+.input-group {
+    position: relative;
+    margin-bottom: 18px;
+}
+
+.input-group i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255,255,255,0.6);
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 12px 12px 42px;
+    border-radius: 12px;
+    border: none;
+    outline: none;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    transition: 0.3s ease;
+}
+
+.input-group input:focus {
+    background: rgba(255,255,255,0.2);
+}
+
+.input-group input::placeholder {
+    color: rgba(255,255,255,0.6);
+}
+
+/* ===== Button ===== */
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 12px;
+    border: none;
+    background: #FF8400;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+button:hover {
+    background: white;
+    color: #FF8400;
+    transform: scale(1.05);
+}

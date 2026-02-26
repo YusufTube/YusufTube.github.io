@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YusufTube</title>
+
+<link rel="stylesheet" href="../Css/searchStyle.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<link rel="icon" type="image/png" sizes="32x32" href="Images/YusufTube-Logo.png">
+<link rel="shortcut icon" href="Images/YusufTube-Logo.png">
+<link rel="apple-touch-icon" sizes="180x180" href="Images/YusufTube-Logo.png">
+<link rel="icon" type="image/png" sizes="192x192" href="Images/YusufTube-Logo.png">
+</head>
+
+<body>
+
+<header>
+    <div class="logo" onclick="window.location.href='../index.html'">
+        <i class="fa-solid fa-fire"></i> YusufTube
+    </div>
+
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search videos...">
+        <button id="searchBtn">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+        <button id="voiceBtn">
+            <i class="fa-solid fa-microphone"></i>
+        </button>
+    </div>
+
+    <div class="user-actions">
+        <i class="fa-regular fa-bell"></i>
+		<div class="user-icon" onclick="window.location.href='Register.html'">?</div>
+    </div>
+</header>
+
+<div class="main-container">
+    <div id="resultsTitle"></div>
+    <div class="video-grid" id="videoGrid"></div>
+</div>
+
+<script src="../JavaScript/searchScript.js"></script>
+</body>
+</html>
