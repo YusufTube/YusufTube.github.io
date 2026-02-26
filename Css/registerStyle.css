@@ -11,59 +11,135 @@ body {
     justify-content: center;
     align-items: center;
     background: black;
+    overflow: hidden;
     position: relative;
+    opacity: 0;
+    animation: pageFade 1s ease forwards;
 }
 
-/* WELCOME TEXT */
+@keyframes pageFade {
+    to { opacity: 1; }
+}
+
+/* Animated Background */
+body::before {
+    content: "";
+    position: fixed;
+    width: 200%;
+    height: 200%;
+    background:
+        radial-gradient(circle at 25% 30%, #FF8400 0%, transparent 45%),
+        radial-gradient(circle at 75% 70%, #FF8400 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, #000000 20%, #000000 60%);
+    animation: liquidMove 14s infinite alternate ease-in-out;
+    filter: blur(80px);
+    z-index: -1;
+}
+
+@keyframes liquidMove {
+    0% { transform: translate(-10%, -10%) rotate(0deg); }
+    100% { transform: translate(-15%, -5%) rotate(15deg); }
+}
+
+/* Welcome Text */
 .welcome-text {
-    position: absolute;
-    top: 40px;
+    position: fixed;
     left: 50%;
+    top: -40px;
     transform: translateX(-50%);
-    font-size: 2rem;
+    font-size: 2.2rem;
     font-weight: bold;
     color: white;
-    text-align: center;
-    white-space: nowrap;
+    opacity: 0;
+    animation: slideDown 1.2s ease forwards;
+    animation-delay: 0.3s;
+    text-shadow: 0 0 20px rgba(255,132,0,0.8);
+    z-index: 10;
 }
 
-/* REGISTER BOX */
+@keyframes slideDown {
+    to {
+        top: 35px;
+        opacity: 1;
+    }
+}
+
+/* Register Box */
 .register-box {
     width: 380px;
     padding: 40px;
     border-radius: 25px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.2);
-    box-shadow: 0 0 40px rgba(255,132,0,0.4);
+    backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 50px rgba(255, 132, 0, 0.4);
     color: white;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeUp 1s ease forwards;
+    animation-delay: 0.7s;
 }
 
-/* TITLE */
+@keyframes fadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .register-title {
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
     margin-bottom: 25px;
-    font-size: 1.6rem;
+    font-size: 1.8rem;
 }
 
-/* INPUT GROUP */
+/* Input Groups */
 .input-group {
     position: relative;
     margin-bottom: 18px;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeUp 0.8s ease forwards;
 }
 
-/* LEFT ICON */
-.left-icon {
+/* Staggered animation timing */
+.input-group:nth-of-type(1) { animation-delay: 1s; }
+.input-group:nth-of-type(2) { animation-delay: 1.2s; }
+.input-group:nth-of-type(3) { animation-delay: 1.4s; }
+
+.input-group i {
     position: absolute;
-    left: 14px;
     top: 50%;
     transform: translateY(-50%);
     color: rgba(255,255,255,0.6);
 }
 
-/* INPUT FIELD */
+.left-icon {
+    left: 14px;
+}
+
+/* Eye icon */
+.toggle-password {
+    right: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toggle-password:hover {
+    color: white;
+    text-shadow:
+        0 0 8px white,
+        0 0 15px white,
+        0 0 25px rgba(255,255,255,0.8);
+    transform: translateY(-50%) scale(1.1);
+}
+
 .input-group input {
     width: 100%;
-    padding: 12px 45px 12px 45px;
+    padding: 12px 42px 12px 42px;
     border-radius: 12px;
     border: none;
     outline: none;
@@ -71,17 +147,11 @@ body {
     color: white;
 }
 
-/* EYE ICON RIGHT */
-.password-group .toggle-password {
-    position: absolute;
-    right: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: white;
+.input-group input::placeholder {
+    color: rgba(255,255,255,0.6);
 }
 
-/* BUTTON */
+/* Button */
 button {
     width: 100%;
     padding: 12px;
@@ -93,6 +163,10 @@ button {
     font-weight: bold;
     cursor: pointer;
     transition: 0.3s ease;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeUp 0.8s ease forwards;
+    animation-delay: 1.6s;
 }
 
 button:hover {
