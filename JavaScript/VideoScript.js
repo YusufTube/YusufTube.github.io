@@ -197,4 +197,18 @@ function updateGlow() {
 player.addEventListener("play", () => { updateGlow(); glow.play(); });
 player.addEventListener("pause", () => { glow.pause(); });
 player.addEventListener("seeking", () => { glow.currentTime = player.currentTime; });
-player.addEventListener("seeked", () => { glow.currentTime = player
+player.addEventListener("seeked", () => { glow.currentTime = player.currentTime; });
+player.addEventListener("ratechange", () => { glow.playbackRate = player.playbackRate; });
+
+// ===== VIEWS & AUTO NEXT =====
+player.addEventListener("ended", async () => {
+    if (!activeKey) return;
+    await incrementViews(activeKey);
+
+    const stats = await getVideoStats(activeKey);
+    viewDisplay.innerText = stats.views + " views";
+
+    const cards = Array.from(videoList.children);
+    const randomCard = cards[Math.floor(Math.random() * cards.length)];
+    randomCard.click();
+});
