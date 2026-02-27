@@ -1,21 +1,78 @@
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+// FireBase.js
+// Import Firebase modules
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
+import { getDatabase } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPhoneNumber, RecaptchaVerifier } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyDAr2KgoAyhkxGUm5FmuexzLmm_XyiQQ0c",
-    authDomain: "yusuftube-63599.firebaseapp.com",
-    projectId: "yusuftube-63599",
-    storageBucket: "yusuftube-63599.firebasestorage.app",
-    messagingSenderId: "9588442108",
-    appId: "1:9588442108:web:065d421a1652d75a392879",
-    measurementId: "G-CR8YVB53NL"
-  };
+// ===== FIREBASE CONFIG =====
+const firebaseConfig = {
+  apiKey: "AIzaSyDAr2KgoAyhkxGUm5FmuexzLmm_XyiQQ0c",
+  authDomain: "yusuftube-63599.firebaseapp.com",
+  projectId: "yusuftube-63599",
+  storageBucket: "yusuftube-63599.appspot.com",
+  messagingSenderId: "9588442108",
+  appId: "1:9588442108:web:065d421a1652d75a392879",
+  measurementId: "G-CR8YVB53NL"
+};
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+// ===== INITIALIZE FIREBASE =====
+export const app = initializeApp(firebaseConfig);
+export const analytics = getAnalytics(app);
+export const database = getDatabase(app);
+export const auth = getAuth(app);
+
+// ===== GOOGLE SIGN-IN =====
+export const googleProvider = new GoogleAuthProvider();
+
+export async function signInWithGoogle() {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    return result.user;
+  } catch (err) {
+    console.error("Google sign-in error:", err);
+    throw err;
+  }
+}
+
+// ===== SIGN OUT =====
+export async function logOut() {
+  try { await signOut(auth); }
+  catch(err){ console.error("Sign out error:", err); }
+}
+
+// ===== EMAIL/PASSWORD AUTH =====
+export async function registerWithEmail(email, password) {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    return userCredential.user;
+  } catch (err) {
+    console.error("Email registration error:", err);
+    throw err;
+  }
+}
+
+export async function loginWithEmail(email, password) {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    return userCredential.user;
+  } catch (err) {
+    console.error("Email login error:", err);
+    throw err;
+  }
+}
+
+// ===== PHONE AUTH =====
+export function setupRecaptcha(containerId) {
+  return new RecaptchaVerifier(containerId, { size: "invisible" }, auth);
+}
+
+export async function loginWithPhone(phoneNumber, appVerifier) {
+  try {
+    const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+    return confirmationResult; // Use confirmationResult.confirm(code) to verify OTP
+  } catch(err){
+    console.error("Phone login error:", err);
+    throw err;
+  }
+}
