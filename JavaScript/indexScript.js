@@ -8,8 +8,10 @@ import {
     getDoc,
     setDoc,
     updateDoc,
-    increment
+    increment,
+    arrayUnion
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
 // ==========================
 // FIREBASE CONFIG
@@ -25,19 +27,20 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 // ==========================
 // ELEMENTS
 // ==========================
 const videoGrid = document.getElementById("videoGrid");
+const searchInput = document.getElementById("searchInput");
+const autocompleteList = document.getElementById("autocomplete-list");
+const searchBtn = document.getElementById("searchBtn");
 
 // ==========================
 // GITHUB VIDEO BASE PATH
 // ==========================
-
-// CHANGE THIS TO YOUR ACTUAL REPO RAW LINK
-const GITHUB_BASE =
-"https://yusuftube.github.io/Videos/";
+const GITHUB_BASE = "https://yusuftube.github.io/Videos/";
 
 // ==========================
 // VIDEO LIST (STATIC)
@@ -60,16 +63,112 @@ const videos = [
 ];
 
 // ==========================
-// CREATE VIDEO CARD
+// AUTOCOMPLETE & SEARCH
+// ==========================
+let currentFocus = -1;
+
+// Get user past searches
+async function getUserPastSearches() {
+    if (!auth.currentUser) return [];
+    const uid = auth.currentUser.uid;
+    const userDoc = doc(db, "users", uid);
+    const snap = await getDoc(userDoc);
+    if (snap.exists() && snap.data().searches) return snap.data().searches;
+    return [];
+}
+
+function getVideoNames() {
+    return videos.map(v => v.split('/').pop().replace('.mp4','').replace(/_/g,' '));
+}
+
+async function showAutocomplete() {
+    currentFocus = -1; // reset keyboard focus
+    const input = searchInput.value.toLowerCase();
+    autocompleteList.innerHTML = '';
+    if (!input) return;
+
+    const pastSearches = await getUserPastSearches();
+    const videoNames = getVideoNames();
+
+    const suggestions = [...new Set([...pastSearches, ...videoNames])]
+        .filter(item => item.toLowerCase().includes(input));
+
+    suggestions.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'autocomplete-item';
+        div.textContent = s;
+        div.addEventListener('click', () => {
+            searchInput.value = s;
+            autocompleteList.innerHTML = '';
+            performSearch(s);
+        });
+        autocompleteList.appendChild(div);
+    });
+}
+
+async function performSearch(query) {
+    if (!query) return;
+    if (auth.currentUser) {
+        const uid = auth.currentUser.uid;
+        const userDoc = doc(db, "users", uid);
+        await updateDoc(userDoc, { searches: arrayUnion(query) });
+    }
+    console.log("Search performed for:", query);
+}
+
+searchInput.addEventListener('input', showAutocomplete);
+searchBtn.addEventListener('click', () => performSearch(searchInput.value));
+
+// Keyboard navigation
+searchInput.addEventListener("keydown", function(e) {
+    const items = autocompleteList.getElementsByClassName("autocomplete-item");
+    if (!items) return;
+
+    if (e.key === "ArrowDown") {
+        currentFocus++;
+        addActive(items);
+        e.preventDefault();
+    } else if (e.key === "ArrowUp") {
+        currentFocus--;
+        addActive(items);
+        e.preventDefault();
+    } else if (e.key === "Enter") {
+        e.preventDefault();
+        if (currentFocus > -1 && items[currentFocus]) {
+            items[currentFocus].click();
+        } else {
+            performSearch(searchInput.value);
+            autocompleteList.innerHTML = '';
+        }
+    } else if (e.key === "Escape") {
+        autocompleteList.innerHTML = '';
+    }
+});
+
+function addActive(items) {
+    if (!items) return;
+    removeActive(items);
+    if (currentFocus >= items.length) currentFocus = 0;
+    if (currentFocus < 0) currentFocus = items.length - 1;
+    items[currentFocus].classList.add("autocomplete-active");
+}
+
+function removeActive(items) {
+    Array.from(items).forEach(item => item.classList.remove("autocomplete-active"));
+}
+
+// Close autocomplete when clicking outside
+document.addEventListener("click", function(e) {
+    if (e.target !== searchInput) autocompleteList.innerHTML = '';
+});
+
+// ==========================
+// CREATE VIDEO CARDS
 // ==========================
 async function addHomeVideo(path) {
-
     const fullPath = GITHUB_BASE + path;
     const fileName = path.split('/').pop();
-    const cleanName = fileName
-        .replace('.mp4','')
-        .replace(/_/g,' ');
-
+    const cleanName = fileName.replace('.mp4','').replace(/_/g,' ');
     const videoId = fileName.replace(".mp4", "");
 
     const card = document.createElement("div");
@@ -83,7 +182,6 @@ async function addHomeVideo(path) {
     previewVideo.muted = true;
     previewVideo.loop = true;
     previewVideo.playsInline = true;
-
     thumbnail.appendChild(previewVideo);
 
     const info = document.createElement("div");
@@ -102,48 +200,31 @@ async function addHomeVideo(path) {
 
     card.appendChild(thumbnail);
     card.appendChild(info);
-
     videoGrid.appendChild(card);
 
-    // Hover preview
-    card.addEventListener("mouseenter", () => {
-        previewVideo.play();
-    });
-
+    card.addEventListener("mouseenter", () => previewVideo.play());
     card.addEventListener("mouseleave", () => {
         previewVideo.pause();
         previewVideo.currentTime = 0;
     });
 
-    // Click → increment views in Firebase
     card.onclick = async () => {
-
         const videoRef = doc(db, "videos", videoId);
         const snap = await getDoc(videoRef);
 
         if (snap.exists()) {
-            await updateDoc(videoRef, {
-                views: increment(1)
-            });
+            await updateDoc(videoRef, { views: increment(1) });
         } else {
-            await setDoc(videoRef, {
-                views: 1
-            });
+            await setDoc(videoRef, { views: 1 });
         }
 
-        window.location.href =
-            "Htmls/video.html?video=" + encodeURIComponent(fullPath);
+        window.location.href = "Htmls/video.html?video=" + encodeURIComponent(fullPath);
     };
 
-    // Load views from Firebase
     const videoRef = doc(db, "videos", videoId);
     const snap = await getDoc(videoRef);
-
-    if (snap.exists()) {
-        viewsDiv.innerText = snap.data().views + " views";
-    } else {
-        viewsDiv.innerText = "0 views";
-    }
+    if (snap.exists()) viewsDiv.innerText = snap.data().views + " views";
+    else viewsDiv.innerText = "0 views";
 }
 
 // ==========================
