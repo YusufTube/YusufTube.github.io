@@ -1,9 +1,4 @@
-import { getDatabase, ref, get, set, update, child } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
-import { app } from "./FireBase.js";
-
-const db = getDatabase(app);
-
-// Elements
+// ===== VIDEO ELEMENTS =====
 const player = document.getElementById("videoPlayer");
 const glow = document.getElementById("glowPlayer");
 const videoList = document.getElementById("videoList");
@@ -17,9 +12,13 @@ const saveBtn = document.getElementById("saveBtn");
 const searchInput = document.getElementById("searchInput");
 const voiceBtn = document.getElementById("voiceBtn");
 
+import { getDatabase, ref, get, set, child } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+import { app } from "./FireBase.js";
+const db = getDatabase(app);
+
 let activeKey = "";
 
-// Firebase helpers
+// ===== FIREBASE HELPERS =====
 async function getVideoStats(videoId) {
     const snapshot = await get(child(ref(db), `videos/${videoId}`));
     return snapshot.exists() ? snapshot.val() : { views: 0, likes: 0, dislikes: 0, action: null, viewed: false };
@@ -36,7 +35,7 @@ function updateLikeDislikeUI(stats) {
     dislikeBtn.classList.toggle("active-btn", stats.action === "dislike");
 }
 
-// Load video
+// ===== LOAD VIDEO FUNCTION =====
 async function loadVideo(path, key, sidebarViewEl) {
     player.src = path;
     glow.src = path;
@@ -49,12 +48,12 @@ async function loadVideo(path, key, sidebarViewEl) {
     if (sidebarViewEl) sidebarViewEl.innerText = stats.views + " views";
 }
 
-// Like/Dislike buttons
+// ===== LIKE / DISLIKE =====
 likeBtn.addEventListener("click", async () => {
     if (!activeKey) return;
     const stats = await getVideoStats(activeKey);
     if (stats.action === "like") { stats.likes--; stats.action = null; }
-    else { if(stats.action==="dislike") stats.dislikes--; stats.likes++; stats.action="like"; }
+    else { if (stats.action==="dislike") stats.dislikes--; stats.likes++; stats.action="like"; }
     await saveVideoStats(activeKey, stats);
     updateLikeDislikeUI(stats);
 });
@@ -68,7 +67,7 @@ dislikeBtn.addEventListener("click", async () => {
     updateLikeDislikeUI(stats);
 });
 
-// Save button
+// ===== SAVE BUTTON =====
 saveBtn.addEventListener("click", () => {
     if (!player.src) return;
     const link = document.createElement("a");
@@ -79,7 +78,7 @@ saveBtn.addEventListener("click", () => {
     document.body.removeChild(link);
 });
 
-// Add video cards
+// ===== ADD VIDEO CARDS FUNCTION =====
 function addVideo(path) {
     const file = path.split("/").pop();
     const name = file.replace(".mp4", "").replace(/_/g, " ");
@@ -98,10 +97,7 @@ function addVideo(path) {
     vid.loop = true;
 
     card.onmouseenter = () => vid.play();
-    card.onmouseleave = () => {
-        vid.pause();
-        vid.currentTime = 0;
-    };
+    card.onmouseleave = () => { vid.pause(); vid.currentTime = 0; };
 
     const info = document.createElement("div");
     const t = document.createElement("div");
@@ -122,30 +118,27 @@ function addVideo(path) {
     videoList.appendChild(card);
 }
 
-// Your video paths
+// ===== VIDEO PATHS (GITHUB LINKS) =====
 const videoPaths = [
-    "video1/ronaldo drinking meme 1 hour.mp4",
-    "video2/diddy heil epstein.mp4",
-    "video3/metro man arm swing 1 hour.mp4",
-    "video4/Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster).mp4",
-    "video5/All Hallows Eve.mp4",
-    "video6/1-800 bbnos.mp4",
-    "video7/1 hour of Shreksophone.mp4",
-    "video8/f25 key 1 hour.mp4",
-    "video9/100 Gün Minecraft ama Her Gün FARKLI MOBA Dönüşüyorum... (part 1).mp4",
-    "video10/100 Gün Minecraft ama Her Gün FARKLI MOBA Dönüşüyorum... (part 2).mp4",
-    "video11/Minecraft'ı Bitiriyorum ama 4 Avcıya Karşı.mp4",
-    "video12/Minecraft Manhunt ama 2 NETHERITE TANK'a Karşı....mp4",
-    "video13/Minecraft Manhunt ama Çimene DOKUNAMIYORUZ....mp4",
-    "video14/Berkay Inan - Aptal Kedi (çok resmi lyric video).mp4"
+    "https://raw.githubusercontent.com/YusufTube/YusufTubeAssets/main/video1/ronaldo drinking meme 1 hour.mp4",
+    "https://raw.githubusercontent.com/YusufTube/YusufTubeAssets/main/video2/diddy heil epstein.mp4",
+    "https://raw.githubusercontent.com/YusufTube/YusufTubeAssets/main/video3/metro man arm swing 1 hour.mp4",
+    "https://raw.githubusercontent.com/YusufTube/YusufTubeAssets/main/video4/Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster).mp4",
+    "https://raw.githubusercontent.com/YusufTube/YusufTubeAssets/main/video5/All Hallows Eve.mp4",
+    "https://raw.githubusercontent.com/YusufTube/YusufTubeAssets/main/video6/1-800 bbnos.mp4",
+    "https://raw.githubusercontent.com/YusufTube/YusufTubeAssets/main/video7/1 hour of Shreksophone.mp4",
+    "https://raw.githubusercontent.com/YusufTube/YusufTubeAssets/main/video8/f25 key 1 hour.mp4",
+    "https://raw.githubusercontent.com/YusufTube/YusufTubeAssets/main/video9/100 Gün Minecraft ama Her Gün FARKLI MOBA Dönüşüyorum... (part 1).mp4",
+    "https://raw.githubusercontent.com/YusufTube/YusufTubeAssets/main/video10/100 Gün Minecraft ama Her Gün FARKLI MOBA Dönüşüyorum... (part 2).mp4",
+    "https://raw.githubusercontent.com/YusufTube/YusufTubeAssets/main/video11/Minecraft'ı Bitiriyorum ama 4 Avcıya Karşı.mp4",
+    "https://raw.githubusercontent.com/YusufTube/YusufTubeAssets/main/video12/Minecraft Manhunt ama 2 NETHERITE TANK'a Karşı....mp4",
+    "https://raw.githubusercontent.com/YusufTube/YusufTubeAssets/main/video13/Minecraft Manhunt ama Çimene DOKUNAMIYORUZ....mp4",
+    "https://raw.githubusercontent.com/YusufTube/YusufTubeAssets/main/video14/Berkay Inan - Aptal Kedi (çok resmi lyric video).mp4"
 ];
 
 videoPaths.forEach(addVideo);
 
-// Auto-load first video
-if(videoList.firstChild) videoList.firstChild.click();
-
-// Search
+// ===== SEARCH FUNCTION =====
 searchInput.addEventListener("input", () => {
     const filter = searchInput.value.toLowerCase();
     videoList.querySelectorAll(".preview-card").forEach(card => {
@@ -180,23 +173,27 @@ if(SpeechRecognition && voiceBtn){
     recognition.onend = ()=>{ voiceBtn.classList.remove("listening"); }
 }
 
-// ===== GLOW EFFECT & SYNC =====
+// ===== GLOW EFFECT =====
 const canvas = document.getElementById("colorSampler");
 const ctx = canvas.getContext("2d");
 
 function updateGlow() {
     if(player.paused || player.ended) return requestAnimationFrame(updateGlow);
+    canvas.width = 40;
+    canvas.height = 40;
 
-    canvas.width=40; canvas.height=40;
-    ctx.drawImage(player,0,0,canvas.width,canvas.height);
-    const frame = ctx.getImageData(0,0,canvas.width,canvas.height).data;
+    ctx.drawImage(player, 0, 0, canvas.width, canvas.height);
+    const frame = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
 
     let r=0,g=0,b=0,count=0;
     for(let i=0;i<frame.length;i+=4){ r+=frame[i]; g+=frame[i+1]; b+=frame[i+2]; count++; }
-    r=Math.floor(r/count); g=Math.floor(g/count); b=Math.floor(b/count);
+
+    r=Math.floor(r/count);
+    g=Math.floor(g/count);
+    b=Math.floor(b/count);
 
     const glowColor = `rgba(${r},${g},${b},0.6)`;
-    document.querySelector(".video-wrapper").style.boxShadow=`0 0 60px ${glowColor}, 0 0 120px ${glowColor}`;
+    document.querySelector(".video-wrapper").style.boxShadow=`0 0 60px ${glowColor},0 0 120px ${glowColor}`;
 
     requestAnimationFrame(updateGlow);
 }
@@ -210,17 +207,16 @@ player.addEventListener("ratechange", ()=>{ glow.playbackRate=player.playbackRat
 // ===== VIEWS & RANDOM NEXT VIDEO =====
 player.addEventListener("ended", async ()=>{
     if(!activeKey) return;
-
     const stats = await getVideoStats(activeKey);
-    if(!stats.viewed){ stats.views++; stats.viewed=true; await saveVideoStats(activeKey,stats); viewDisplay.innerText = stats.views + " views"; }
+    if(!stats.viewed){ stats.views++; stats.viewed=true; await saveVideoStats(activeKey, stats); viewDisplay.innerText = stats.views + " views"; }
 
     // Update sidebar views
     const sidebarEl = Array.from(videoList.children)
-        .find(c=>c.dataset.path===player.src)
+        .find(c => c.dataset.path === player.src)
         ?.querySelector(".preview-views");
     if(sidebarEl) sidebarEl.innerText = stats.views + " views";
 
-    // Random next video
+    // Play random video
     const randomIndex = Math.floor(Math.random() * videoPaths.length);
     const randomPath = videoPaths[randomIndex];
     const randomFile = randomPath.split("/").pop();
@@ -233,3 +229,5 @@ player.addEventListener("ended", async ()=>{
 // Safety resync glow
 setInterval(()=>{ if(!player.paused && Math.abs(glow.currentTime - player.currentTime) > 0.2) glow.currentTime = player.currentTime; },1000);
 
+// Auto-load first video
+if(videoList.firstChild) videoList.firstChild.click();
