@@ -1,19 +1,18 @@
-// videoScript.js (Firebase version)
 import { db } from "./FireBase.js";
-import { collection, doc, getDoc, setDoc, updateDoc, increment, getDocs } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+import { collection, doc, getDoc, setDoc, updateDoc, increment, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
 // Elements
 const player = document.getElementById("videoPlayer");
 const glow = document.getElementById("glowPlayer");
 const videoList = document.getElementById("videoList");
 const title = document.getElementById("mainTitle");
-const viewDisplay = document.getElementById("viewCountDisplay");
+const viewDisplay = document.getElementById("viewCount");
 const likeBtn = document.getElementById("likeBtn");
 const dislikeBtn = document.getElementById("dislikeBtn");
 const likeCount = document.getElementById("likeCount");
 const dislikeCount = document.getElementById("dislikeCount");
 const saveBtn = document.getElementById("saveBtn");
-const searchInput = document.querySelector(".search-bar input");
+const searchInput = document.getElementById("searchInput");
 const voiceBtn = document.getElementById("voiceBtn");
 const canvas = document.getElementById("colorSampler");
 const ctx = canvas.getContext("2d");
@@ -22,27 +21,26 @@ let activeKey = "";
 let currentAction = null;
 
 // ===== FIREBASE HELPERS =====
-async function getVideoStats(videoId) {
+async function initVideoDoc(videoId, path) {
     const docRef = doc(db, "videos", videoId);
     const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) return docSnap.data();
-    await setDoc(docRef, { views:0, likes:0, dislikes:0 });
-    return { views:0, likes:0, dislikes:0 };
+    if (!docSnap.exists()) {
+        await setDoc(docRef, { views:0, likes:0, dislikes:0, path, action: null });
+    }
 }
 
-async function updateLikeDislike(videoId, action, previousAction) {
+function listenVideoStats(videoId) {
     const docRef = doc(db, "videos", videoId);
-    const updates = {};
-    if (action === "like") updates.likes = increment(1);
-    if (action === "dislike") updates.dislikes = increment(1);
-    if (previousAction === "like" && action !== "like") updates.likes = increment(-1);
-    if (previousAction === "dislike" && action !== "dislike") updates.dislikes = increment(-1);
-    await updateDoc(docRef, updates);
-}
-
-async function incrementViews(videoId) {
-    const docRef = doc(db, "videos", videoId);
-    await updateDoc(docRef, { views: increment(1) });
+    return onSnapshot(docRef, (docSnap) => {
+        if (!docSnap.exists()) return;
+        const data = docSnap.data();
+        likeCount.innerText = data.likes;
+        dislikeCount.innerText = data.dislikes;
+        viewDisplay.innerText = data.views + " views";
+        currentAction = data.action || null;
+        likeBtn.classList.toggle("active-btn", currentAction === "like");
+        dislikeBtn.classList.toggle("active-btn", currentAction === "dislike");
+    });
 }
 
 // ===== LOAD VIDEO LIST =====
@@ -64,6 +62,7 @@ function addVideo(path, key) {
     const card = document.createElement("div");
     card.className = "preview-card";
     card.dataset.path = path;
+    card.dataset.key = key;
 
     const thumb = document.createElement("div");
     thumb.className = "preview-thumbnail";
@@ -83,9 +82,10 @@ function addVideo(path, key) {
 
     const views = document.createElement("div");
     views.className = "preview-views";
+    views.id = `views_${key}`;
     views.innerText = "0 views";
 
-    card.onclick = () => loadVideo(path, key, views);
+    card.onclick = async () => loadVideo(path, key, views);
 
     thumb.appendChild(vid);
     info.appendChild(t);
@@ -96,39 +96,52 @@ function addVideo(path, key) {
 }
 
 // ===== LOAD VIDEO =====
+let unsubscribe = null;
 async function loadVideo(path, key, sidebarViewEl) {
+    if (unsubscribe) unsubscribe(); // remove previous listener
+
+    await initVideoDoc(key, path);
+
     player.src = path;
     glow.src = path;
     title.innerText = path.split("/").pop().replace(".mp4","");
     activeKey = key;
 
-    const stats = await getVideoStats(key);
-    likeCount.innerText = stats.likes || 0;
-    dislikeCount.innerText = stats.dislikes || 0;
-    viewDisplay.innerText = stats.views + " views";
-    currentAction = stats.action || null;
+    unsubscribe = listenVideoStats(key);
 
-    likeBtn.classList.toggle("active-btn", currentAction === "like");
-    dislikeBtn.classList.toggle("active-btn", currentAction === "dislike");
-
-    if (sidebarViewEl) sidebarViewEl.innerText = stats.views + " views";
+    // Increment view on first play
+    player.onplay = async () => {
+        const docRef = doc(db, "videos", key);
+        await updateDoc(docRef, { views: increment(1) });
+        if (sidebarViewEl) sidebarViewEl.innerText = (parseInt(sidebarViewEl.innerText)||0)+1 + " views";
+    };
 }
 
 // ===== LIKE/DISLIKE =====
 likeBtn.addEventListener("click", async () => {
     if (!activeKey) return;
-    const prev = currentAction;
+    const docRef = doc(db, "videos", activeKey);
+    const prevAction = currentAction;
     currentAction = currentAction === "like" ? null : "like";
-    await updateLikeDislike(activeKey, currentAction, prev);
-    loadVideo(player.src, activeKey);
+
+    await updateDoc(docRef, {
+        likes: increment(currentAction === "like" ? 1 : -1),
+        dislikes: prevAction === "dislike" && currentAction === "like" ? increment(-1) : undefined,
+        action: currentAction
+    });
 });
 
 dislikeBtn.addEventListener("click", async () => {
     if (!activeKey) return;
-    const prev = currentAction;
+    const docRef = doc(db, "videos", activeKey);
+    const prevAction = currentAction;
     currentAction = currentAction === "dislike" ? null : "dislike";
-    await updateLikeDislike(activeKey, currentAction, prev);
-    loadVideo(player.src, activeKey);
+
+    await updateDoc(docRef, {
+        dislikes: increment(currentAction === "dislike" ? 1 : -1),
+        likes: prevAction === "like" && currentAction === "dislike" ? increment(-1) : undefined,
+        action: currentAction
+    });
 });
 
 // ===== SAVE BUTTON =====
@@ -176,18 +189,14 @@ if (SpeechRecognition && voiceBtn) {
     recognition.onend = () => voiceBtn.classList.remove("listening");
 }
 
-// ===== VIDEO GLOW EFFECT =====
+// ===== GLOW EFFECT =====
 function updateGlow() {
     if (player.paused || player.ended) return requestAnimationFrame(updateGlow);
-
     canvas.width = 40; canvas.height = 40;
     ctx.drawImage(player, 0, 0, canvas.width, canvas.height);
     const frame = ctx.getImageData(0,0,canvas.width,canvas.height).data;
-
     let r=0,g=0,b=0,count=0;
-    for(let i=0;i<frame.length;i+=4){
-        r+=frame[i]; g+=frame[i+1]; b+=frame[i+2]; count++;
-    }
+    for(let i=0;i<frame.length;i+=4){ r+=frame[i]; g+=frame[i+1]; b+=frame[i+2]; count++; }
     r=Math.floor(r/count); g=Math.floor(g/count); b=Math.floor(b/count);
     const glowColor = `rgba(${r},${g},${b},0.6)`;
     document.querySelector(".video-wrapper").style.boxShadow = `0 0 60px ${glowColor},0 0 120px ${glowColor}`;
@@ -195,20 +204,7 @@ function updateGlow() {
 }
 
 player.addEventListener("play", () => { updateGlow(); glow.play(); });
-player.addEventListener("pause", () => { glow.pause(); });
-player.addEventListener("seeking", () => { glow.currentTime = player.currentTime; });
-player.addEventListener("seeked", () => { glow.currentTime = player.currentTime; });
-player.addEventListener("ratechange", () => { glow.playbackRate = player.playbackRate; });
-
-// ===== VIEWS & AUTO NEXT =====
-player.addEventListener("ended", async () => {
-    if (!activeKey) return;
-    await incrementViews(activeKey);
-
-    const stats = await getVideoStats(activeKey);
-    viewDisplay.innerText = stats.views + " views";
-
-    const cards = Array.from(videoList.children);
-    const randomCard = cards[Math.floor(Math.random() * cards.length)];
-    randomCard.click();
-});
+player.addEventListener("pause", () => glow.pause());
+player.addEventListener("seeking", () => glow.currentTime = player.currentTime);
+player.addEventListener("seeked", () => glow.currentTime = player.currentTime);
+player.addEventListener("ratechange", () => glow.playbackRate = player.playbackRate);
