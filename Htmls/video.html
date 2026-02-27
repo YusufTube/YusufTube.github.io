@@ -8,61 +8,61 @@
 <link rel="stylesheet" href="../Css/videoStyle.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<link rel="icon" type="image/png" sizes="32x32" href="Images/YusufTube-Logo.png">
-<link rel="shortcut icon" href="Images/YusufTube-Logo.png">
-<link rel="apple-touch-icon" sizes="180x180" href="Images/YusufTube-Logo.png">
-<link rel="icon" type="image/png" sizes="192x192" href="Images/YusufTube-Logo.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://raw.githubusercontent.com/YusufTube/YusufTubeAssets/main/Images/YusufTube-Logo.png">
+<link rel="shortcut icon" href="https://raw.githubusercontent.com/YusufTube/YusufTubeAssets/main/Images/YusufTube-Logo.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/YusufTube/YusufTubeAssets/main/Images/YusufTube-Logo.png">
+<link rel="icon" type="image/png" sizes="192x192" href="https://raw.githubusercontent.com/YusufTube/YusufTubeAssets/main/Images/YusufTube-Logo.png">
 </head>
 
 <body>
 
 <header>
-<div class="logo" id="logoBtn">
-<i class="fa-solid fa-fire"></i> YusufTube
-</div>
+  <div class="logo" id="logoBtn" onclick="window.location.href='../index.html'">
+    <i class="fa-solid fa-fire"></i> YusufTube
+  </div>
 
-<div class="search-bar">
-<input type="text" id="searchInput" placeholder="Search videos...">
-<button id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
-<button id="voiceBtn"><i class="fa-solid fa-microphone"></i></button>
-</div>
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search videos...">
+    <button id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
+    <button id="voiceBtn"><i class="fa-solid fa-microphone"></i></button>
+  </div>
 
-<div class="user-actions">
-<i class="fa-regular fa-bell" id="notificationBtn"></i>
-<div class="user-icon" id="userBtn">?</div>
-</div>
+  <div class="user-actions">
+    <i class="fa-regular fa-bell" id="notifBtn"></i>
+    <div class="user-icon" id="userProfileBtn" onclick="window.location.href='Register.html'">?</div>
+  </div>
 </header>
 
 <div class="container">
-<div class="main-content">
-<div class="video-container-relative">
-<video id="glowPlayer" muted></video>
-<div class="video-wrapper">
-<video id="videoPlayer" controls autoplay></video>
-</div>
-</div>
+  <div class="main-content">
+    <div class="video-container-relative">
+      <video id="glowPlayer" muted></video>
+      <div class="video-wrapper">
+        <video id="videoPlayer" controls autoplay></video>
+      </div>
+    </div>
 
-<canvas id="colorSampler" style="display:none;"></canvas>
-<div class="video-title" id="mainTitle">Select a video</div>
+    <canvas id="colorSampler" style="display:none;"></canvas>
+    <div class="video-title" id="mainTitle">Select a video</div>
 
-<div class="video-meta-row">
-<button class="pill-btn" id="likeBtn"><i class="fa-regular fa-thumbs-up"></i> <span id="likeCount">0</span></button>
-<button class="pill-btn" id="dislikeBtn"><i class="fa-regular fa-thumbs-down"></i> <span id="dislikeCount">0</span></button>
-<button class="pill-btn" id="saveBtn"><i class="fa-solid fa-download"></i> Save</button>
-</div>
+    <div class="video-meta-row">
+      <button class="pill-btn" id="likeBtn"><i class="fa-regular fa-thumbs-up"></i> <span id="likeCount">0</span></button>
+      <button class="pill-btn" id="dislikeBtn"><i class="fa-regular fa-thumbs-down"></i> <span id="dislikeCount">0</span></button>
+      <button class="pill-btn" id="saveBtn"><i class="fa-solid fa-download"></i> Save</button>
+    </div>
 
-<div class="description-box">
-<span id="viewCount">0 views</span>
-<p id="videoDescription">Enjoy the best meme compilations and orange glow content.</p>
-</div>
-</div>
+    <div class="description-box">
+      <span id="viewCountDisplay">0 views</span>
+      <p>Enjoy the best meme compilations and orange glow content.</p>
+    </div>
+  </div>
 
-<div class="sidebar">
-<div id="videoList"></div>
-</div>
+  <div class="sidebar">
+    <div id="videoList"></div>
+  </div>
 </div>
 
 <script type="module" src="../JavaScript/FireBase.js"></script>
-<script type="module" src="../JavaScript/videoScript.js"></script>
+<script type="module" src="../JavaScript/videoFirebase.js"></script>
 </body>
 </html>
