@@ -47,6 +47,7 @@ header {
     flex: 1;
     max-width: 600px;
     margin: 0 20px;
+    position: relative;
 }
 
 .search-bar input {
@@ -186,4 +187,29 @@ header {
     font-size: 14px;
     color: var(--yellow);
     margin-top: 6px;
+}
+
+/* AUTOCOMPLETE */
+.autocomplete-items {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.95);
+    border: 1px solid rgba(255,132,0,.5);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 999;
+    border-radius: 0 0 10px 10px;
+}
+
+.autocomplete-item {
+    padding: 10px;
+    cursor: pointer;
+    color: var(--orange);
+}
+
+.autocomplete-item:hover, .autocomplete-item.autocomplete-active {
+    background: rgba(255,132,0,.5);
+    color: black;
 }
