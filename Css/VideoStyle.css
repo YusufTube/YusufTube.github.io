@@ -69,13 +69,11 @@ header{
     transition:.3s;
 }
 
-/* Search button (middle button) */
 .search-bar button:first-of-type{
     border-left:none;
     border-radius:0;
 }
 
-/* Mic button (last button) */
 .search-bar button:last-of-type{
     border-left:none;
     border-radius:0 40px 40px 0;
