@@ -82,16 +82,27 @@ function getVideoNames() {
 }
 
 async function showAutocomplete() {
-    currentFocus = -1; // reset keyboard focus
+    currentFocus = -1;
     const input = searchInput.value.toLowerCase();
+
     autocompleteList.innerHTML = '';
-    if (!input) return;
+    if (!input) {
+        autocompleteList.style.display = 'none';
+        return;
+    }
 
     const pastSearches = await getUserPastSearches();
     const videoNames = getVideoNames();
 
     const suggestions = [...new Set([...pastSearches, ...videoNames])]
         .filter(item => item.toLowerCase().includes(input));
+
+    if (suggestions.length === 0) {
+        autocompleteList.style.display = 'none';
+        return;
+    }
+
+    autocompleteList.style.display = 'block';
 
     suggestions.forEach(s => {
         const div = document.createElement('div');
@@ -100,6 +111,7 @@ async function showAutocomplete() {
         div.addEventListener('click', () => {
             searchInput.value = s;
             autocompleteList.innerHTML = '';
+            autocompleteList.style.display = 'none';
             performSearch(s);
         });
         autocompleteList.appendChild(div);
@@ -139,9 +151,11 @@ searchInput.addEventListener("keydown", function(e) {
         } else {
             performSearch(searchInput.value);
             autocompleteList.innerHTML = '';
+            autocompleteList.style.display = 'none';
         }
     } else if (e.key === "Escape") {
         autocompleteList.innerHTML = '';
+        autocompleteList.style.display = 'none';
     }
 });
 
@@ -159,7 +173,10 @@ function removeActive(items) {
 
 // Close autocomplete when clicking outside
 document.addEventListener("click", function(e) {
-    if (e.target !== searchInput) autocompleteList.innerHTML = '';
+    if (e.target !== searchInput) {
+        autocompleteList.innerHTML = '';
+        autocompleteList.style.display = 'none';
+    }
 });
 
 // ==========================
