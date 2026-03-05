@@ -189,35 +189,36 @@ header {
     margin-top: 6px;
 }
 
-/* AUTOCOMPLETE */
 .autocomplete-items {
     position: absolute;
     top: 100%;
     left: 0;
     right: 0;
-    background: rgba(255, 255, 255, 0.1); /* frosted glass */
-    backdrop-filter: blur(12px) saturate(150%);
-    border: 1px solid rgba(255,132,0,0.5);
-    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.4); /* semi-transparent dark */
+    backdrop-filter: blur(15px) saturate(180%); /* frosted glass */
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
+    border: 1px solid rgba(255, 132, 0, 0.5);
+    border-radius: 16px; /* fully rounded corners */
     max-height: 250px;
     overflow-y: auto;
-    z-index: 999;
+    z-index: 9999;
     padding: 5px 0;
-    box-shadow: 0 8px 20px rgba(255,132,0,0.2);
+    box-shadow: 0 8px 25px rgba(255, 132, 0, 0.25); /* outer glow */
 }
 
 .autocomplete-item {
     padding: 10px 15px;
     cursor: pointer;
     color: var(--orange);
-    transition: all 0.2s ease-in-out;
-    border-radius: 8px;
+    transition: all 0.25s ease-in-out;
+    border-radius: 12px;
 }
 
 .autocomplete-item:hover,
 .autocomplete-item.autocomplete-active {
-    background: rgba(255,132,0,0.3);
+    background: rgba(255, 132, 0, 0.35); /* glow background */
     color: black;
-    box-shadow: 0 0 10px rgba(255,132,0,0.6);
-    transform: scale(1.03);
+    box-shadow: 0 0 12px rgba(255, 132, 0, 0.8); /* glow effect */
+    transform: scale(1.05); /* slight pop */
 }
+
