@@ -189,36 +189,39 @@ header {
     margin-top: 6px;
 }
 
-/* AUTOCOMPLETE */
+/* AUTOCOMPLETE CONTAINER */
 .autocomplete-items {
     position: absolute;
     top: 100%;
     left: 0;
     right: 0;
-    background: rgba(255, 255, 255, 0.05); /* light frosted glass */
-    backdrop-filter: blur(12px) brightness(1.2);
-    border: 1px solid rgba(255,132,0,0.3);
+    background: rgba(255, 255, 255, 0.05); /* light transparent glass */
+    backdrop-filter: blur(15px) saturate(120%); /* frosted glass effect */
+    border: 1px solid rgba(255, 132, 0, 0.3);
     max-height: 250px;
     overflow-y: auto;
     z-index: 999;
     border-radius: 20px; /* fully rounded corners */
     padding: 5px 0;
-    box-shadow: 0 8px 20px rgba(255,132,0,0.2); /* soft glow shadow */
+    box-shadow: 0 8px 30px rgba(255, 132, 0, 0.2); /* soft outer glow */
 }
 
+/* AUTOCOMPLETE ITEMS */
 .autocomplete-item {
-    padding: 10px 15px;
+    padding: 12px 18px;
+    margin: 3px 10px;
     cursor: pointer;
     color: var(--orange);
-    transition: all 0.3s ease;
-    border-radius: 15px;
-    margin: 3px 10px;
+    transition: all 0.25s ease;
+    border-radius: 15px; /* rounded items */
 }
 
+/* HOVER / ACTIVE EFFECT */
 .autocomplete-item:hover,
 .autocomplete-item.autocomplete-active {
-    background: rgba(255, 132, 0, 0.25);
-    color: black;
-    box-shadow: 0 0 12px rgba(255,132,0,0.6); /* glow effect */
-    transform: scale(1.02);
+    background: rgba(255, 132, 0, 0.3);
+    color: #000;
+    box-shadow: 0 0 15px rgba(255, 132, 0, 0.7); /* glow effect */
+    transform: scale(1.03);
 }
+
