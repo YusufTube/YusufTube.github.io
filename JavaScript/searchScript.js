@@ -3,7 +3,9 @@ const searchBtn = document.getElementById("searchBtn");
 const videoGrid = document.getElementById("videoGrid");
 const resultsTitle = document.getElementById("resultsTitle");
 
-/* ===== VIDEO LIST ===== */
+// ==========================
+// VIDEO LIST
+// ==========================
 const videos = [
     "video1/ronaldo drinking meme 1 hour.mp4",
     "video2/diddy heil epstein.mp4",
@@ -21,65 +23,65 @@ const videos = [
     "video14/Berkay Inan - Aptal Kedi (çok resmi lyric video).mp4"
 ];
 
-/* ===== INDEXED DB SETUP (for views) ===== */
-let db;
-const request = indexedDB.open("YusufTubeDB", 1);
-
-request.onsuccess = (e) => {
-    db = e.target.result;
-    initSearch();
-};
-
-function getVideoStats(videoId, callback) {
-    if (!db) return callback({ views: 0 });
-
-    const tx = db.transaction(["videos"], "readonly");
-    const store = tx.objectStore("videos");
-    const req = store.get(videoId);
-
-    req.onsuccess = () => callback(req.result || { views: 0 });
-    req.onerror = () => callback({ views: 0 });
-}
-
-/* ===== GET QUERY ===== */
+// ==========================
+// INIT SEARCH
+// ==========================
 function initSearch() {
+
     const params = new URLSearchParams(window.location.search);
     const query = params.get("q");
 
-    if (query) {
-        searchInput.value = query;
-        resultsTitle.innerText = "Results for: " + query;
-        showResults(query);
-    }
+    if (!query) return;
+
+    searchInput.value = query;
+    resultsTitle.innerText = "Results for: " + query;
+
+    showResults(query);
 }
 
+initSearch();
+
+// ==========================
+// SEARCH BUTTON
+// ==========================
 searchBtn.addEventListener("click", () => {
+
     const q = searchInput.value.trim();
+
     if (q !== "") {
         window.location.href = "search.html?q=" + encodeURIComponent(q);
     }
+
 });
 
-/* ===== SHOW RESULTS ===== */
-function showResults(searchText) {
+// ==========================
+// SHOW RESULTS
+// ==========================
+function showResults(text) {
+
     videoGrid.innerHTML = "";
-    const lowerSearch = searchText.toLowerCase();
+
+    const search = text.toLowerCase();
 
     const filtered = videos.filter(path => {
-        const fileName = path.split('/').pop();
-        const cleanName = fileName.replace('.mp4','').replace(/_/g,' ');
-        return cleanName.toLowerCase().includes(lowerSearch);
+
+        const fileName = path.split("/").pop();
+        const cleanName = fileName.replace(".mp4", "").replace(/_/g, " ");
+
+        return cleanName.toLowerCase().includes(search);
+
     });
 
     if (filtered.length === 0) {
-        videoGrid.innerHTML = "<p style='color:#FFD84D'>No videos found.</p>";
+        videoGrid.innerHTML =
+            "<p style='color:#FFD84D'>No videos found.</p>";
         return;
     }
 
     filtered.forEach(path => {
-        const fileName = path.split('/').pop();
-        const cleanName = fileName.replace('.mp4','').replace(/_/g,' ');
-        const key = "ys_" + fileName;
+
+        const fileName = path.split("/").pop();
+        const cleanName = fileName.replace(".mp4", "").replace(/_/g, " ");
 
         const card = document.createElement("div");
         card.className = "video-card";
@@ -87,47 +89,33 @@ function showResults(searchText) {
         const thumbnail = document.createElement("div");
         thumbnail.className = "thumbnail";
 
-        const previewVideo = document.createElement("video");
-        previewVideo.src = path;
-        previewVideo.muted = true;
-        previewVideo.loop = true;
-        previewVideo.playsInline = true;
+        const video = document.createElement("video");
+        video.src = "../Videos/" + path;
+        video.muted = true;
+        video.loop = true;
 
-        thumbnail.appendChild(previewVideo);
+        thumbnail.appendChild(video);
 
         const info = document.createElement("div");
         info.className = "video-info";
-
-        const titleDiv = document.createElement("div");
-        titleDiv.innerText = cleanName;
-
-        const viewsDiv = document.createElement("div");
-        viewsDiv.style.color = "#FFD84D";
-        viewsDiv.style.fontSize = "14px";
-        viewsDiv.style.marginTop = "6px";
-        viewsDiv.innerText = "0 views";
-
-        info.appendChild(titleDiv);
-        info.appendChild(viewsDiv);
+        info.innerText = cleanName;
 
         card.appendChild(thumbnail);
         card.appendChild(info);
 
-        card.addEventListener("mouseenter", () => previewVideo.play());
+        videoGrid.appendChild(card);
+
+        card.addEventListener("mouseenter", () => video.play());
         card.addEventListener("mouseleave", () => {
-            previewVideo.pause();
-            previewVideo.currentTime = 0;
+            video.pause();
+            video.currentTime = 0;
         });
 
         card.onclick = () => {
-            window.location.href = "video.html?video=" + encodeURIComponent(path);
+            window.location.href =
+                "video.html?video=" + encodeURIComponent("../Videos/" + path);
         };
 
-        videoGrid.appendChild(card);
-
-        /* Fetch real views */
-        getVideoStats(key, (stats) => {
-            viewsDiv.innerText = (stats.views || 0) + " views";
-        });
     });
+
 }
