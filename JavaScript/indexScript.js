@@ -1,4 +1,10 @@
 // ==========================
+// IMPORT FIREBASE
+// ==========================
+import { database } from "./FireBase.js";
+import { ref, get, set } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+
+// ==========================
 // ELEMENTS
 // ==========================
 const videoGrid = document.getElementById("videoGrid");
@@ -37,7 +43,6 @@ const videos = [
 function performSearch(query) {
     const q = query.trim();
     if (q === "") return;
-
     window.location.href = "Htmls/search.html?q=" + encodeURIComponent(q);
 }
 
@@ -66,7 +71,6 @@ function getVideoNames() {
 searchInput.addEventListener("input", showAutocomplete);
 
 function showAutocomplete() {
-
     const input = searchInput.value.toLowerCase();
     autocompleteList.innerHTML = "";
 
@@ -79,7 +83,6 @@ function showAutocomplete() {
     );
 
     results.forEach(name => {
-
         const div = document.createElement("div");
         div.className = "autocomplete-item";
         div.innerText = name;
@@ -90,9 +93,7 @@ function showAutocomplete() {
         };
 
         autocompleteList.appendChild(div);
-
     });
-
 }
 
 // close autocomplete when clicking outside
@@ -103,13 +104,19 @@ document.addEventListener("click", function (e) {
 });
 
 // ==========================
-// VIDEO CARDS
+// VIDEO CARDS WITH VIEW COUNTS
 // ==========================
-function addHomeVideo(path) {
+async function addHomeVideo(path) {
 
     const fullPath = GITHUB_BASE + path;
     const fileName = path.split("/").pop();
     const cleanName = fileName.replace(".mp4", "").replace(/_/g, " ");
+
+    // Fetch views from Firebase
+    const videoKey = path.split("/")[0]; // video1, video2, etc.
+    const viewsRef = ref(database, "videos/" + videoKey + "/views");
+    let snapshot = await get(viewsRef);
+    let viewsCount = snapshot.exists() ? snapshot.val() : 0;
 
     const card = document.createElement("div");
     card.className = "video-card";
@@ -131,7 +138,12 @@ function addHomeVideo(path) {
     title.className = "video-title";
     title.innerText = cleanName;
 
+    const views = document.createElement("div");
+    views.className = "video-views";
+    views.innerText = `${viewsCount} views`;
+
     info.appendChild(title);
+    info.appendChild(views);
 
     card.appendChild(thumbnail);
     card.appendChild(info);
@@ -144,11 +156,18 @@ function addHomeVideo(path) {
         video.currentTime = 0;
     });
 
-    card.onclick = () => {
-        window.location.href =
-            "Htmls/video.html?video=" + encodeURIComponent(fullPath);
+    card.onclick = async () => {
+        // Increment views in Firebase
+        snapshot = await get(viewsRef);
+        const currentViews = snapshot.exists() ? snapshot.val() : 0;
+        await set(viewsRef, currentViews + 1);
+
+        // Navigate to video page
+        window.location.href = "Htmls/video.html?video=" + encodeURIComponent(fullPath);
     };
 }
 
-// init
+// ==========================
+// INIT
+// ==========================
 videos.forEach(addHomeVideo);
