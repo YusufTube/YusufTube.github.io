@@ -4,28 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>YusufTube</title>
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-<!-- External CSS -->
 <link rel="stylesheet" href="../Css/registerStyle.css">
-
-<!-- Favicon -->
 <link rel="icon" type="image/png" href="./Images/YusufTube-Logo.png?v=3">
-<link rel="apple-touch-icon" href="./Images/YusufTube-Logo.png?v=3">
-<link rel="icon" type="image/png" href="../Images/YusufTube-Logo.png?v=3">
-<link rel="apple-touch-icon" href="../Images/YusufTube-Logo.png?v=3">
-
 </head>
-
 <body>
 
-<div class="welcome-text">
-    Welcome to YusufTube
-</div>
+<div class="welcome-text">Welcome to YusufTube</div>
 
 <div class="register-box">
-
     <h2 class="register-title">
         <i class="fa-solid fa-user-plus"></i>
         <span>Register</span>
@@ -33,12 +20,12 @@
 
     <div class="input-group">
         <i class="fa-solid fa-user left-icon"></i>
-        <input type="text" placeholder="Username">
+        <input type="text" id="username" placeholder="Username">
     </div>
 
     <div class="input-group">
         <i class="fa-solid fa-envelope left-icon"></i>
-        <input type="email" placeholder="Email">
+        <input type="email" id="email" placeholder="Email">
     </div>
 
     <div class="input-group">
@@ -47,21 +34,10 @@
         <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
     </div>
 
-    <button>Create Account</button>
-
+    <button id="registerBtn">Create Account</button>
+    <p id="auth-message" style="text-align:center; margin-top:10px;"></p>
 </div>
 
-<script src="../JavaScript/RegisterScript.js"></script>
-
+<script type="module" src="../JavaScript/RegisterScript.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
