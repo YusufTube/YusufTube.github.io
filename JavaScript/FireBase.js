@@ -1,9 +1,22 @@
 // FireBase.js
-// Import Firebase modules
+
+// ===== IMPORT FIREBASE =====
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPhoneNumber, RecaptchaVerifier } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInWithPhoneNumber,
+  RecaptchaVerifier,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+
 
 // ===== FIREBASE CONFIG =====
 const firebaseConfig = {
@@ -16,13 +29,15 @@ const firebaseConfig = {
   measurementId: "G-CR8YVB53NL"
 };
 
+
 // ===== INITIALIZE FIREBASE =====
 export const app = initializeApp(firebaseConfig);
 export const analytics = getAnalytics(app);
 export const database = getDatabase(app);
 export const auth = getAuth(app);
 
-// ===== GOOGLE SIGN-IN =====
+
+// ===== GOOGLE SIGN IN =====
 export const googleProvider = new GoogleAuthProvider();
 
 export async function signInWithGoogle() {
@@ -35,13 +50,18 @@ export async function signInWithGoogle() {
   }
 }
 
+
 // ===== SIGN OUT =====
 export async function logOut() {
-  try { await signOut(auth); }
-  catch(err){ console.error("Sign out error:", err); }
+  try {
+    await signOut(auth);
+  } catch (err) {
+    console.error("Sign out error:", err);
+  }
 }
 
-// ===== EMAIL/PASSWORD AUTH =====
+
+// ===== EMAIL REGISTER =====
 export async function registerWithEmail(email, password) {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -52,6 +72,8 @@ export async function registerWithEmail(email, password) {
   }
 }
 
+
+// ===== EMAIL LOGIN =====
 export async function loginWithEmail(email, password) {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -62,17 +84,34 @@ export async function loginWithEmail(email, password) {
   }
 }
 
-// ===== PHONE AUTH =====
+
+// ===== PHONE LOGIN =====
 export function setupRecaptcha(containerId) {
-  return new RecaptchaVerifier(containerId, { size: "invisible" }, auth);
+  return new RecaptchaVerifier(containerId, {
+    size: "invisible"
+  }, auth);
 }
 
 export async function loginWithPhone(phoneNumber, appVerifier) {
   try {
     const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
-    return confirmationResult; // Use confirmationResult.confirm(code) to verify OTP
-  } catch(err){
+    return confirmationResult;
+  } catch (err) {
     console.error("Phone login error:", err);
     throw err;
   }
+}
+
+
+// ===== AUTH STATE LISTENER (LOGIN SUPPORT) =====
+export function listenForAuthChanges(callback) {
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log("User logged in:", user);
+      callback(user);
+    } else {
+      console.log("User logged out");
+      callback(null);
+    }
+  });
 }
